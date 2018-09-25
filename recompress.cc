@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     }
   }
 
-  for (auto i = visible.begin(); i != visible.end(); ++i) {
+  for (std::set<uint32_t>::iterator i = visible.begin(); i != visible.end(); ++i) {
  //  fprintf(stderr, "off=%u\n", *i);
     int ret = lseek(b.log_fd, *i, SEEK_SET);
     assert(ret == *i);

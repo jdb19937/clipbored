@@ -1,6 +1,8 @@
 #include "board.hh"
 #include "paste.hh"
 
+#include <stdlib.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <fcntl.h>
