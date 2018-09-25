@@ -2,6 +2,7 @@
 #include "paste.hh"
 
 #include <stdlib.h>
+#include <sys/file.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/mman.h>
@@ -10,6 +11,9 @@
 #include <sys/stat.h>
 #include <assert.h>
 #include <string.h>
+
+#define LOCK(x) {int ret = flock(x,LOCK_EX); assert(ret == 0); }
+#define UNLOCK(x) flock(x,LOCK_UN)
 
 void Board::create(const char *dir, const char *name, uint32_t w, uint32_t h, double halflife) {
   int ret = mkdir(dir, 0700);
@@ -90,6 +94,7 @@ fprintf(stderr, "opening %s\n", log_fn.c_str());
   log_fd = ::open(log_fn.c_str(), O_RDWR | O_CREAT, 0777);
   assert(log_fd != -1);
 
+LOCK(log_fd);
   ret = lseek(log_fd, 0, SEEK_END);
   if (ret == 0) {
     ret = lseek(log_fd, 0, SEEK_SET);
@@ -103,6 +108,7 @@ fprintf(stderr, "opening %s\n", log_fn.c_str());
 
     p.write(log_fd);
   }
+UNLOCK(log_fd);
 
   std::string seenoff_fn = std::string(dir) + "/seenoff.dat";
   seenoff_fd = ::open(seenoff_fn.c_str(), O_RDWR | O_CREAT, 0777);
@@ -174,6 +180,7 @@ unsigned int Board::paste(Paste *p) {
   double pv = p->value(halflife);
   unsigned int count = 0;
 
+LOCK(log_fd);
   size_t poff = lseek(log_fd, 0, SEEK_END);
   assert(poff > 0);
 
@@ -213,10 +220,16 @@ unsigned int Board::paste(Paste *p) {
       p->seen = time(NULL);
     }
     p->write(log_fd);
-    int ret = ::write(seenoff_fd, &p->seen, 4);
-    assert(ret == 4);
-    ret = ::write(seenoff_fd, &poff, 4);
-    assert(ret == 4);
+UNLOCK(log_fd);
+    char so[8];
+    memcpy(so, &p->seen, 4);
+    memcpy(so+4, &poff, 4);
+LOCK(seenoff_fd)
+    int ret = ::write(seenoff_fd, so, 8);
+UNLOCK(seenoff_fd);
+    assert(ret == 8);
+  } else {
+UNLOCK(log_fd);
   }
 
   return count;
