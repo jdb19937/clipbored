@@ -30,6 +30,16 @@ heatmap: $(OBJ) heatmap.o
 %: %.gz
 	gzip -dc $^ > $@
 
+.PHONY: clean
 clean:
 	rm -f $(OBJ) genpaste.o pasteout.o newbored.o pastein.o recompress.o heatmap.o
 	rm -f genpaste pasteout newbored pastein recompress heatmap
+
+# for Ubuntu 16.04 LTS Google Cloud instance
+.PHONY: setup
+setup:
+	apt-get -y update
+	apt-get -y install apache2
+	apt-get -y install make
+	apt-get -y install g++
+	apt-get -y install imagemagick
