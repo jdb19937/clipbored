@@ -1,0 +1,75 @@
+#!/usr/bin/perl -s
+
+use FindBin qw($Bin);
+
+@ARGV == 2 or die "Usage: $0 [-l [-m=maxconn]] host:port dir\n";
+my ($addr, $dir) = @ARGV;
+
+my $config_fn = "$dir/config.tsv";
+open(my $config_fp, "<", $config_fn) or die "$0: $config_fn: $!";
+my $config_line = <$config_fp>;
+chomp $config_line;
+my ($board,) = split /\t/, $config_line;
+warn "boardname $board";
+
+use IO::Socket::INET;
+use POSIX ":sys_wait_h";
+
+if ($::l) {
+  my ($host, $port) = split /:/, $addr;
+  die "no port" unless $port > 0;
+  $host ||= '0.0.0.0';
+
+  warn "starting server on port $port";
+  my $s = new IO::Socket::INET
+    LocalHost	=> $host,
+    LocalPort	=> $port,
+    Reuse	=> 1,
+    Listen	=> 256,
+    ;
+
+  my $kids = 0;
+  while (my $c = $s->accept) {
+    while (waitpid(-1, &WNOHANG) > 0) {
+      --$kids;
+      warn "reaped kid, now $kids kids";
+    }
+
+    while ($kids > $::m) {
+      wait;
+      --$kids;
+      warn "reaped kid, now $kids kids";
+    }
+    ++$kids;
+    warn "forking new kid";
+
+    my $pid = fork;
+    if ($pid) {
+      close($c);
+      next;
+    }
+    close($s);
+
+    warn "$$ handling";
+    handle($c);
+    warn "$$ done handling";
+    close($c);
+    exit 0;
+  }
+  exit 0;
+} else {
+  my $c = new IO::Socket::INET $addr or die "$0: connect $addr: $!";
+  handle($c);
+  exit 0;
+}
+
+sub handle {
+  my $c = shift;
+
+  open(STDIN, "<&", $c) or die;
+  select(STDOUT); $| = 1;
+  warn "$$ executing $Bin/pastein";
+  exec("$Bin/pastein", $dir);
+  exit(1);
+}
+

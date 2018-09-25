@@ -1,0 +1,46 @@
+#!/usr/bin/perl -s
+
+use FindBin qw($Bin);
+
+$::sleep //= 10;
+my $dir = shift(@ARGV);
+
+$dir or die "Usage: $0 dirname\n";
+
+while (1) {
+  my $cmd;
+
+  $cmd = "convert $dir/render.ppm -resize 16x16 ico:$dir/favicon.ico.tmp";
+  warn "executing $cmd";
+  system($cmd);
+  rename("$dir/favicon.ico.tmp", "$dir/favicon.ico");
+
+  $cmd = "$Bin/heatmap $dir > $dir/heatmap.ppm.tmp";
+  warn "executing $cmd";
+  system($cmd);
+  rename("$dir/heatmap.ppm.tmp", "$dir/heatmap.ppm");
+
+  $cmd = "convert $dir/render.ppm png:$dir/render.png.tmp";
+  warn "executing $cmd";
+  system($cmd);
+  rename("$dir/render.png.tmp", "$dir/render.png");
+
+#  $cmd = "convert $dir/render.ppm -quality 30 jpg:$dir/render.jpg.tmp";
+#  warn "executing $cmd";
+#  system($cmd);
+#  rename("$dir/render.jpg.tmp", "$dir/render.jpg");
+
+  $cmd = "convert $dir/heatmap.ppm png:$dir/heatmap.png.tmp";
+  warn "executing $cmd";
+  system($cmd);
+  rename("$dir/heatmap.png.tmp", "$dir/heatmap.png");
+
+#  $cmd = "convert $dir/heatmap.ppm -quality 30 jpg:$dir/heatmap.jpg.tmp";
+#  warn "executing $cmd";
+#  system($cmd);
+#  rename("$dir/heatmap.jpg.tmp", "$dir/heatmap.jpg");
+
+  warn "sleep($::sleep)";
+  sleep($::sleep);
+}
+
