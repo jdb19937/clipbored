@@ -53,7 +53,9 @@ fprintf(stderr, "off=%ld\n", off);
 LOCK(b.log_fd);
     if (!p.read(b.log_fd)) {
 UNLOCK(b.log_fd);
-fprintf(stderr, "hit end, sleep(1)\n");
+fprintf(stderr, "hit end, sleep(1), write keepalive\n");
+      uint32_t keepalive = 0xFFFFFFFF;
+      fwrite(&keepalive, 4, 1, stdout);
       sleep(1);
       continue;
     }

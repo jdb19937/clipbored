@@ -250,10 +250,18 @@ void Paste::write(int fd) {
   out(fd, seen);
 }
 
-void Paste::read(FILE *fp) {
+bool Paste::read(FILE *fp) {
   int ret;
 
-  in(fp, &magic);
+  do {
+    ret = ::fread(&magic, 4, 1, fp);
+    if (ret < 1) {
+      return 0;
+    }
+    assert(ret == 1);
+    magic = ntohl(magic);
+  } while (magic == 0xFFFFFFFF);
+
   in(fp, &ts);
 
   in(fp, &w); in(fp, &h);
@@ -288,12 +296,14 @@ void Paste::read(FILE *fp) {
 bool Paste::read(int fd) {
   int ret;
 
-  ret = ::read(fd, &magic, 4);
-  if (ret < 1) {
-    return 0;
-  }
-  assert(ret == 4);
-  magic = ntohl(magic);
+  do {
+    ret = ::read(fd, &magic, 4);
+    if (ret < 1) {
+      return 0;
+    }
+    assert(ret == 4);
+    magic = ntohl(magic);
+  } while (magic == 0xFFFFFFFF);
 
   in(fd, &ts);
 
