@@ -4,11 +4,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/file.h>
 
 #include <math.h>
 
 #include "paste.hh"
 #include "board.hh"
+
+#define LOCK(x) {int ret = flock(x,LOCK_EX); assert(ret == 0); }
+#define UNLOCK(x) flock(x,LOCK_UN)
 
 int main(int argc, char **argv) {
   if (argc < 2) {
@@ -44,11 +48,14 @@ fprintf(stderr, "off=%ld\n", off);
 
   while (1) {
     Paste p;
+LOCK(b.log_fd);
     if (!p.read(b.log_fd)) {
+UNLOCK(b.log_fd);
 fprintf(stderr, "hit end, sleep(1)\n");
       sleep(1);
       continue;
     }
+UNLOCK(b.log_fd);
 //fprintf(stderr, "p.seen=%d\n", p.seen);
 
     if (argc > 3) {
