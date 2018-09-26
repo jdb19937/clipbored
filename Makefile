@@ -49,3 +49,4 @@ boreds:
 	./newbored main main 1024 1024 86400
 	./newbored news news 1024 2048 86400
 	./newbored test test 512 512 3600
+	chmod 755 main news test
