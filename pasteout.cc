@@ -20,6 +20,8 @@ int main(int argc, char **argv) {
     return 1;
   }
 
+  setbuf(stdout, NULL);
+
   long ts = time(NULL);
   if (argc > 2) {
     ts = atoi(argv[2]);
