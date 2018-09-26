@@ -95,7 +95,7 @@ struct Paste {
 
   void write(FILE *fp);
   void write(int fd);
-  void read(FILE *fp);
+  bool read(FILE *fp);
   bool read(int fd);
 };
 
