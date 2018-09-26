@@ -11,3 +11,7 @@ nohup ./pastedown bored1.clipbored.io:4904 test > test/client.pastedown.4904.out
 nohup ./pasteup bored1.clipbored.io:4705 main > main/client.pasteup.4705.out 2>&1 &
 nohup ./pasteup bored1.clipbored.io:4805 news > news/client.pasteup.4805.out 2>&1 &
 nohup ./pasteup bored1.clipbored.io:4905 test > test/client.pasteup.4905.out 2>&1 &
+
+nohup ./runbored main > main/runbored.out 2>&1 &
+nohup ./runbored news > news/runbored.out 2>&1 &
+nohup ./runbored test > test/runbored.out 2>&1 &
