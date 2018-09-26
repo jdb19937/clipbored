@@ -11,3 +11,7 @@ nohup ./pasteup -m=8 -l :4904 test > test/pasteup.4904.out 2>&1 &
 nohup ./pastedown -m=8 -l :4705 main > main/pastedown.4705.out 2>&1 &
 nohup ./pastedown -m=8 -l :4805 news > news/pastedown.4805.out 2>&1 &
 nohup ./pastedown -m=8 -l :4905 test > test/pastedown.4905.out 2>&1 &
+
+nohup ./runbored main > main/runbored.out 2>&1 &
+nohup ./runbored news > news/runbored.out 2>&1 &
+nohup ./runbored test > test/runbored.out 2>&1 &
