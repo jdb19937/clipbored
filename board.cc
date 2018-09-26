@@ -180,6 +180,12 @@ unsigned int Board::paste(Paste *p) {
   double pv = p->value(halflife);
   unsigned int count = 0;
 
+  // doesn't fit
+  if (p->x + p->w > w)
+    return 0;
+  if (p->y + p->h > h)
+    return 0;
+
 LOCK(log_fd);
   size_t poff = lseek(log_fd, 0, SEEK_END);
   assert(poff > 0);
