@@ -58,7 +58,11 @@ if ($::l) {
   }
   exit 0;
 } else {
-  my $c = new IO::Socket::INET $addr or die "$0: connect $addr: $!";
+  my $c = new IO::Socket::INET
+    PeerAddr		=> $addr,
+    KeepAlive		=> 1,
+    ;
+  $c or die "$0: connect $addr: $!";
   handle($c);
   exit 0;
 }
